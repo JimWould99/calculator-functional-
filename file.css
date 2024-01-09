@@ -22,6 +22,10 @@ body {
     background-color: white;
     margin-bottom: 15px;
     border-radius: 7px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    font-size: 55px;
 }
 
 .line, #display{

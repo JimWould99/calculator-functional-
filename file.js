@@ -1,5 +1,6 @@
 buttons = document.querySelectorAll('button')
 symbols = document.querySelectorAll('.symbol')
+section = document.querySelector('#display')
 
 let firstNumber = 0
 let secondNumber = 0
@@ -7,6 +8,8 @@ let operator = "none"
 let result
 let first = true
 let reset = false
+let operatorNumb = true
+
 
 function add(number1, number2){
     return number1 + number2
@@ -29,46 +32,95 @@ function operate(first, second, numerator){
     firstNumber = parseFloat(first)
     secondNumber = parseFloat(second)
 
-   if (numerator == "div"){
+   if (numerator == "÷"){
     result = divide(firstNumber, secondNumber)
-} else if (numerator == "times") {
+} else if (numerator == "×") {
     result = multiply(firstNumber, secondNumber)
-} else if (numerator == "plus") {
+} else if (numerator == "+") {
     result = add(firstNumber, secondNumber)
-} else if (numerator == "minus") {
+} else if (numerator == "−") {
     result = subtract(firstNumber, secondNumber)
 } 
-  first = true
+  first = false
   reset = true
+  operatorNumb = true
   secondNumber = 0
-  firstNumber = result
+  firstNumber = result.toFixed(6)
   console.log(result) 
   return true
 } 
+
+
+function display(){
+    section.innerHTML = parseFloat(firstNumber)
+    return
+} 
+
+function displaySymbol(){
+    section.innerHTML += operator
+}
+
+function displaySecond(){
+    section.innerHTML = parseFloat(firstNumber) + operator + parseFloat(secondNumber)
+    console.log(`called second`)
+}
+
+function displayAnswer(){
+    section.innerHTML = parseFloat(firstNumber)
+}
+
+
+section.innerHTML = parseFloat(firstNumber)
 
 buttons.forEach((button) => {
     button.addEventListener('click', function(e){
         selected = e.target
         console.log(first)
-        if (selected.getAttribute('class') == 'symbol') {
-            operator = selected.id
-            first = false
-            console.log(`operator: ${operator}`)
+        if (selected.id == "clear") {
+            console.log('clicked C')
+            reset = true
+            firstNumber = 0
+            secondNumber = 0
+            operator = "none"
+            display()
         }
-        if (first && selected.getAttribute('class') == 'number' && reset == false) {
-            firstNumber += selected.innerHTML
+        if (reset && selected.getAttribute('class') == 'number') {
+            firstNumber = selected.innerHTML
+            console.log(`first, first: ${firstNumber}`)
+            reset = false
+            display() 
+            return
+        }
+        if (reset && selected.getAttribute('class') == 'symbol' && operatorNumb) {
+            first = false
+            reset = false
+            operator = selected.innerHTML
+            operatorNumb = false
             console.log(`first: ${firstNumber}`)
+            console.log(`second: ${secondNumber}`)
+            console.log(`symmol works`)
+            displaySymbol()
+            return
+        }
+        if (selected.getAttribute('class') == 'symbol' && operatorNumb) {
+            operator = selected.innerHTML
+            first = false
+            operatorNumb = false
+            console.log(`operator: ${operator}`)
+            displaySymbol()
+        } 
+        if (first == true && selected.getAttribute('class') == 'number') {
+            firstNumber += selected.innerHTML
+            console.log(`first, second: ${firstNumber}`)
+            display() 
         } else if (!first && selected.getAttribute('class') == 'number') {
             secondNumber += selected.innerHTML
             console.log(`second: ${secondNumber}`)
+            displaySecond()
         }
         if (selected.id == "equals") {
             first = operate(firstNumber, secondNumber, operator)
-        }
-        if (selected.getAttribute('class') == 'number' && reset == true) {
-            reset = false
-            firstNumber = selected.innerHTML
-            console.log(`first: (other) ${firstNumber}`)
+            displayAnswer()
         }
     });
 });
