@@ -1,15 +1,15 @@
-buttons = document.querySelectorAll('button')
-symbols = document.querySelectorAll('.symbol')
-section = document.querySelector('#display')
+let buttons = document.querySelectorAll('.number')
+let symbols = document.querySelectorAll('.symbol')
+let equals = document.querySelector('#equals')
+let clearButton = document.querySelector('#clear')
+let section = document.querySelector('#display')
 
-let firstNumber = 0
-let secondNumber = 0
-let operator = "none"
-let result
+let firstNumber = ''
+let secondNumber =''
+let operator = ''
+let result = ''
 let first = true
-let reset = false
-let operatorNumb = true
-
+let output = false
 
 function add(number1, number2){
     return number1 + number2
@@ -27,71 +27,112 @@ function divide(number1, number2){
     return number1 / number2
 }
 
-function operate(first, second, numerator){
-  
-    firstNumber = parseFloat(first)
-    secondNumber = parseFloat(second)
+function operate(){
 
-   if (numerator == "÷"){
+    console.log('operate')
+  
+    firstNumber = parseFloat(firstNumber)
+    secondNumber = parseFloat(secondNumber)
+
+   if (operator == "÷"){
     result = divide(firstNumber, secondNumber)
-} else if (numerator == "×") {
+} else if (operator == "×") {
     result = multiply(firstNumber, secondNumber)
-} else if (numerator == "+") {
+} else if (operator == "+") {
     result = add(firstNumber, secondNumber)
-} else if (numerator == "−") {
+} else if (operator == "−") {
     result = subtract(firstNumber, secondNumber)
 } 
-  first = false
-  reset = true
-  operatorNumb = true
-  secondNumber = 0
-  firstNumber = result.toFixed(6)
-  console.log(result) 
-  return true
-} 
+
+output = true
+first = true
+firstNumber = result.toFixed(6)
+display()
+operator = ''
+secondNumber = ''
+
+console.log(`result: ${result}`)
+}
+
+function clear(){
+    operator = ''
+    firstNumber = 0
+    secondNumber = ''
+    output = true
+    first = true
+}
 
 
 function display(){
-    section.innerHTML = parseFloat(firstNumber)
-    return
-} 
-
-function displaySymbol(){
-    section.innerHTML += operator
+    if (firstNumber.length > 14) {
+       section.setAttribute('style', 'font-size: 35px')
+    }
+    else if (firstNumber.length > 10) {
+        section.setAttribute('style', 'font-size: 45px')
+    } else {
+        section.setAttribute('style', 'font-size: 55px')
+    }
+    if (output) {
+        section.textContent = parseFloat(firstNumber)
+    } else {
+        section.textContent = parseFloat(firstNumber) + operator 
+        if (secondNumber !== '') {
+            section.textContent += parseFloat(secondNumber)
+        }
+    }
 }
 
-function displaySecond(){
-    section.innerHTML = parseFloat(firstNumber) + operator + parseFloat(secondNumber)
-    console.log(`called second`)
-}
+symbols.forEach((symbols) => {
+    symbols.addEventListener('click', function(e){
+        selected = e.target
+        console.log('clicked symbol')
+        if (selected.textContent == operator || secondNumber !== '') {
+            console.log('condition')
+            return
+        }
+        operator = selected.textContent
+        first = false
+        output = false
+        console.log(`operator: ${operator}`)
+        console.log(`secondnumb: ${secondNumber}`)
+        display()
+    })
+})
 
-function displayAnswer(){
-    section.innerHTML = parseFloat(firstNumber)
-}
+equals.addEventListener('click', function(e){
+    console.log('equals')
+    if (secondNumber != '') {
+        operate()
+    }
+})
 
+clearButton.addEventListener('click', function(e){
+    clear()
+    display()
+})
 
-section.innerHTML = parseFloat(firstNumber)
 
 buttons.forEach((button) => {
     button.addEventListener('click', function(e){
         selected = e.target
-        console.log(first)
-        if (selected.id == "clear") {
-            console.log('clicked C')
-            reset = true
-            firstNumber = 0
-            secondNumber = 0
-            operator = "none"
+        if (output && first) {
+            clear()
+            firstNumber = parseInt(selected.textContent)
+            output = false
             display()
-        }
-        if (reset && selected.getAttribute('class') == 'number') {
-            firstNumber = selected.innerHTML
-            console.log(`first, first: ${firstNumber}`)
-            reset = false
-            display() 
             return
         }
-        if (reset && selected.getAttribute('class') == 'symbol' && operatorNumb) {
+        if (first) {
+            firstNumber += selected.textContent 
+        } else {
+            secondNumber += selected.textContent
+        }
+
+        display()
+
+        /*
+        note; display when showing result
+        if (selected.getAttribute('class') == 'symbol' && operatorNumb) {
             first = false
             reset = false
             operator = selected.innerHTML
@@ -99,33 +140,32 @@ buttons.forEach((button) => {
             console.log(`first: ${firstNumber}`)
             console.log(`second: ${secondNumber}`)
             console.log(`symmol works`)
-            displaySymbol()
             return
         }
-        if (selected.getAttribute('class') == 'symbol' && operatorNumb) {
-            operator = selected.innerHTML
-            first = false
-            operatorNumb = false
-            console.log(`operator: ${operator}`)
-            displaySymbol()
-        } 
         if (first == true && selected.getAttribute('class') == 'number') {
             firstNumber += selected.innerHTML
             console.log(`first, second: ${firstNumber}`)
-            display() 
         } else if (!first && selected.getAttribute('class') == 'number') {
             secondNumber += selected.innerHTML
             console.log(`second: ${secondNumber}`)
-            displaySecond()
         }
-        if (selected.id == "equals") {
-            first = operate(firstNumber, secondNumber, operator)
-            displayAnswer()
-        }
+        */
     });
 });
 
 /*
+redo note:
+1. need event listers for all three types: buttons, symbols, equals and clear
+2. dont need to hold seperate variables for two numbers (display one same) and similarly dont need two numbers
+can just have one number and operator will insert inbetween 
+3. dont need to seperate display value series and numbers in javascipt
+
+note- can just look at current code and find where to simplify
+idea- can put all input into one string. then display breaks it based on symbol for display
+
+
+
+
 logic2;
 need to somehow determine whether the input goes to the first number (replacing it).
 or goes to the second number afterwards
